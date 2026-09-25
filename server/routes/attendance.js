@@ -142,8 +142,8 @@ router.get('/me', requireRole('student'), (req, res) => {
   const rows = db.prepare(`
     SELECT c.code AS course_code, c.name AS course_name, o.section,
            COUNT(a.id) AS total_classes,
-           SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) AS present,
-           ROUND(100.0 * SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) / COUNT(a.id), 1) AS percentage
+           COALESCE(SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END), 0) AS present,
+           COALESCE(ROUND(100.0 * SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) / COUNT(a.id), 1), 0) AS percentage
     FROM enrollments e
     JOIN course_offerings o ON o.id = e.offering_id
     JOIN courses c ON c.id = o.course_id
