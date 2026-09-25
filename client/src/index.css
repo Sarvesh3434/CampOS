@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* tiny shared component classes so pages stay clean */
+@layer components {
+  .card {
+    @apply bg-white rounded-xl shadow p-5;
+  }
+  .btn {
+    @apply bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50;
+  }
+  .btn-sm {
+    @apply bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700;
+  }
+  .btn-red {
+    @apply bg-red-100 text-red-700 text-sm px-2 py-1 rounded hover:bg-red-200;
+  }
+  .input {
+    @apply border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-400;
+  }
+  .label {
+    @apply block text-sm text-gray-600 mb-1;
+  }
+  .table-base {
+    @apply w-full text-sm border-collapse;
+  }
+  .table-base th {
+    @apply text-left text-gray-500 font-medium border-b p-2;
+  }
+  .table-base td {
+    @apply border-b p-2;
+  }
+  .stat-number {
+    @apply text-3xl font-bold text-gray-800;
+  }
+}
