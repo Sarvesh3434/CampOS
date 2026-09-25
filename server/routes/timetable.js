@@ -12,10 +12,12 @@ const WEEKDAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday',
 
 const JOIN = `
   SELECT t.*, c.code AS course_code, c.name AS course_name, o.section,
+         c.department_id, d.code AS department_code,
          f.id AS faculty_id, u.name AS faculty_name
   FROM timetable t
   JOIN course_offerings o ON o.id = t.offering_id
   JOIN courses c ON c.id = o.course_id
+  LEFT JOIN departments d ON d.id = c.department_id
   JOIN faculty f ON f.id = o.faculty_id
   JOIN users u ON u.id = f.user_id
 `;
@@ -59,13 +61,16 @@ router.delete('/:id', requireRole('admin'), (req, res) => {
   res.json({ ok: true });
 });
 
-// GET /api/timetable?section=A&type=class — admin: filterable full list.
+// GET /api/timetable?section=A&type=class&department_id=1 — admin: filterable list.
+// department_id lets admins view one department's schedule at a time
+// (CSE timetable vs ECE timetable). Departments come from the course.
 router.get('/', (req, res) => {
-  const { section, type } = req.query;
+  const { section, type, department_id } = req.query;
   let sql = JOIN + ' WHERE 1=1';
   const params = [];
   if (section) { sql += ' AND o.section = ?'; params.push(section); }
   if (type) { sql += ' AND t.type = ?'; params.push(type); }
+  if (department_id) { sql += ' AND c.department_id = ?'; params.push(department_id); }
   sql += type === 'exam'
     ? ' ORDER BY t.day_or_date, t.start_time'
     : ` ORDER BY CASE t.day_or_date ${WEEKDAYS.map((d, i) => `WHEN '${d}' THEN ${i}`).join(' ')} END, t.start_time`;

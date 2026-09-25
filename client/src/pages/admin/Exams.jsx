@@ -5,7 +5,9 @@ import api from '../../api';
 import { useGet, Section } from '../../components/UI.jsx';
 
 export default function ExamsAdmin() {
-  const { data: list, reload } = useGet('/timetable?type=exam');
+  const [dept, setDept] = useState('');
+  const { data: departments } = useGet('/departments');
+  const { data: list, reload } = useGet(`/timetable?type=exam${dept ? `&department_id=${dept}` : ''}`);
   const { data: offerings } = useGet('/offerings');
   const [form, setForm] = useState({ offering_id: '', day_or_date: '', start_time: '09:30', end_time: '11:00', room: '' });
   const [err, setErr] = useState('');
@@ -69,7 +71,17 @@ export default function ExamsAdmin() {
         {err && <p className="text-red-600 text-sm mt-2">{err}</p>}
       </Section>
 
-      <Section title="All exams (sorted by date)">
+      <Section
+        title="All exams (sorted by date)"
+        right={
+          <select className="input w-40" value={dept} onChange={(e) => setDept(e.target.value)}>
+            <option value="">All departments</option>
+            {(departments || []).map((d) => (
+              <option key={d.id} value={d.id}>{d.code} — {d.name}</option>
+            ))}
+          </select>
+        }
+      >
         <table className="table-base">
           <thead><tr><th>Date</th><th>Time</th><th>Course</th><th>Section</th><th>Faculty</th><th>Room</th><th></th></tr></thead>
           <tbody>

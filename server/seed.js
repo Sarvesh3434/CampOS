@@ -32,13 +32,15 @@ db.createSchema(); // re-create the empty tables we just dropped
 
 const hash = bcrypt.hashSync('password123', 10);
 
-// ── Users ───────────────────────────────────────────────────────────────────
+// ── Users ───────────────────────────────────────────────────────────────
+// login_id = what you type on the login page (NOT email):
+//   admin -> ADM001, faculty -> faculty code (FAC001...), students -> roll no (CSE001...)
 const insUser = db.prepare(
-  'INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)'
+  'INSERT INTO users (name, email, login_id, password_hash, role) VALUES (?, ?, ?, ?, ?)'
 );
-const admin = insUser.run('Dr. Ravi Selvam', 'admin@campos.edu', hash, 'admin').lastInsertRowid;
-const meera = insUser.run('Meera Sundaram', 'meera@campos.edu', hash, 'faculty').lastInsertRowid;
-const arun  = insUser.run('Arun Kumar', 'arun@campos.edu', hash, 'faculty').lastInsertRowid;
+const admin = insUser.run('Dr. Ravi Selvam', 'admin@campos.edu', 'ADM001', hash, 'admin').lastInsertRowid;
+const meera = insUser.run('Meera Sundaram', 'meera@campos.edu', 'FAC001', hash, 'faculty').lastInsertRowid;
+const arun  = insUser.run('Arun Kumar', 'arun@campos.edu', 'FAC002', hash, 'faculty').lastInsertRowid;
 
 const studentUserIds = [];
 const STUDENT_NAMES = [
@@ -47,8 +49,9 @@ const STUDENT_NAMES = [
   'Divya Bharathi', 'Adhitya Raman', 'Nithya Sundaresan', 'Manikandan Pillai',
 ];
 for (let i = 1; i <= 12; i++) {
+  const rollNo = i <= 8 ? `CSE${String(i).padStart(3, '0')}` : `ECE${String(i - 8).padStart(3, '0')}`;
   studentUserIds.push(
-    insUser.run(STUDENT_NAMES[i - 1], `s${i}@campos.edu`, hash, 'student').lastInsertRowid
+    insUser.run(STUDENT_NAMES[i - 1], `s${i}@campos.edu`, rollNo, hash, 'student').lastInsertRowid
   );
 }
 

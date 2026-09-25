@@ -51,9 +51,10 @@ router.post('/', requireRole('admin'), (req, res) => {
   try {
     const hash = bcrypt.hashSync(password, 10);
     const create = db.transaction(() => {
+      // login_id = roll number — students log in with their roll no, not email.
       const userId = db.prepare(
-        "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'student')"
-      ).run(name, email, hash).lastInsertRowid;
+        "INSERT INTO users (name, email, login_id, password_hash, role) VALUES (?, ?, ?, ?, 'student')"
+      ).run(name, email, roll_no, hash).lastInsertRowid;
       const info = db.prepare(
         'INSERT INTO students (user_id, roll_no, department_id, section, year) VALUES (?, ?, ?, ?, ?)'
       ).run(userId, roll_no, b.department_id || null, section, year);

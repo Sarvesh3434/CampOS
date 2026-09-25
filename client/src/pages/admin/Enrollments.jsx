@@ -14,7 +14,14 @@ export default function Enrollments() {
 
   const enrolledIds = new Set((enrolled || []).map((e) => e.student_id));
   const available = (students || []).filter((s) => !enrolledIds.has(s.id));
-  // eslint-disable-next-line
+
+  // ⭐ Department scoping: the selected offering's department decides which
+  // students can be enrolled. CSE course -> only CSE students are listed.
+  const selectedOffering = (offerings || []).find((o) => String(o.id) === String(offeringId));
+  const scoped = selectedOffering
+    ? available.filter((s) => !selectedOffering.course_code ||
+        s.roll_no.startsWith(selectedOffering.course_code.replace(/\d+$/, '')))
+    : available;
 
   const enroll = async (e) => {
     e.preventDefault();
@@ -53,14 +60,21 @@ export default function Enrollments() {
           <Section title="2. Enroll a student">
             <form onSubmit={enroll} className="flex gap-3 items-end max-w-xl">
               <div className="flex-1">
-                <label className="label">Student (not yet enrolled)</label>
+                <label className="label">
+                  Student (same department only — {selectedOffering ? selectedOffering.course_code.replace(/\d+$/, '') : '—'} students)
+                </label>
                 <select className="input" required value={studentId}
                   onChange={(e) => setStudentId(e.target.value)}>
                   <option value="">Select…</option>
-                  {available.map((s) => (
+                  {scoped.map((s) => (
                     <option key={s.id} value={s.id}>{s.roll_no} — {s.name}</option>
                   ))}
                 </select>
+                {selectedOffering && scoped.length === 0 && (
+                  <p className="text-xs text-amber-600 mt-1">
+                    No unenrolled {selectedOffering.course_code.replace(/\d+$/, '')} students left.
+                  </p>
+                )}
               </div>
               <button className="btn">Enroll</button>
             </form>

@@ -25,11 +25,38 @@ router.get('/', requireAnyRole('admin', 'faculty'), (req, res) => {
 });
 
 // POST /api/enrollments  { offering_id, student_id } — admin only.
+// ⭐ Department rule: a student can only be enrolled in courses offered by
+// THEIR OWN department (CSE students -> CSE courses only). Enforced here so
+// even a hand-crafted API request can't cross departments.
 router.post('/', requireRole('admin'), (req, res) => {
   const { offering_id, student_id } = req.body || {};
   if (!offering_id || !student_id) {
     return res.status(400).json({ error: 'offering_id and student_id are required.' });
   }
+
+  const student = db.prepare(`
+    SELECT s.department_id, d.code AS dept_code FROM students s
+    LEFT JOIN departments d ON d.id = s.department_id WHERE s.id = ?
+  `).get(student_id);
+  if (!student) return res.status(404).json({ error: 'Student not found.' });
+
+  const course = db.prepare(`
+    SELECT c.department_id, c.code, d.code AS dept_code FROM course_offerings o
+    JOIN courses c ON c.id = o.course_id
+    LEFT JOIN departments d ON d.id = c.department_id
+    WHERE o.id = ?
+  `).get(offering_id);
+  if (!course) return res.status(404).json({ error: 'Course offering not found.' });
+
+  if (student.department_id && course.department_id &&
+      student.department_id !== course.department_id) {
+    return res.status(400).json({
+      error: `Department mismatch: ${course.code} belongs to ${course.dept_code || 'another department'}, ` +
+             `but this student is in ${student.dept_code || 'a different department'}. ` +
+             `Students can only enroll in their own department's courses.`,
+    });
+  }
+
   try {
     const info = db.prepare(
       'INSERT INTO enrollments (offering_id, student_id) VALUES (?, ?)'

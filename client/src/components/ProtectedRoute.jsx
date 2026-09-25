@@ -21,8 +21,7 @@ export default function ProtectedRoute({ role, children }) {
 
   useEffect(() => {
     if (!token) return;
-    let alive = true;
-    api.get('/auth/me')
+    let alive = true;      api.get('/auth/me')  // includes login_id now
       .then((res) => {
         if (!alive) return;
         // Keep localStorage in sync with the server's fresh copy (role/name

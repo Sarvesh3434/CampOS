@@ -30,18 +30,21 @@ function recordFailure(email) {
 const clearAttempts = (email) => attempts.delete(email);
 
 // ── Login ───────────────────────────────────────────────────────────────────
+// Users log in with their ID (not email):
+//   students -> roll number (CSE001), faculty -> faculty code (FAC001),
+//   admin -> ADM001. Match case-insensitively and ignore stray spaces.
 router.post('/login', (req, res) => {
   const body = req.body || {};
-  const email = String(body.email || '').trim().toLowerCase();
+  const loginId = String(body.login_id || body.email || '').trim().toUpperCase();
   const password = String(body.password || '');
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required.' });
+  if (!loginId || !password) {
+    return res.status(400).json({ error: 'ID and password are required.' });
   }
-  if (tooManyAttempts(email)) {
+  if (tooManyAttempts(loginId)) {
     return res.status(429).json({ error: 'Too many failed attempts. Wait 10 minutes.' });
   }
 
-  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+  const user = db.prepare('SELECT * FROM users WHERE UPPER(login_id) = ?').get(loginId);
 
   // Anti user-enumeration: even when the email doesn't exist, we run one
   // bcrypt compare against a dummy hash. Response time stays identical, so
@@ -50,11 +53,11 @@ router.post('/login', (req, res) => {
   const ok = bcrypt.compareSync(password, user ? user.password_hash : DUMMY_HASH);
 
   if (!user || !ok) {
-    recordFailure(email);
-    return res.status(401).json({ error: 'Invalid email or password.' });
+    recordFailure(loginId);
+    return res.status(401).json({ error: 'Invalid ID or password.' });
   }
 
-  clearAttempts(email);
+  clearAttempts(loginId);
 
   // The role travels inside the token — pages use it to pick a landing page.
   const token = jwt.sign(
@@ -63,7 +66,7 @@ router.post('/login', (req, res) => {
     { expiresIn: '12h' }
   );
 
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+  res.json({ token, user: { id: user.id, name: user.name, login_id: user.login_id, email: user.email, role: user.role } });
 });
 
 // ── Session check ───────────────────────────────────────────────────────────
@@ -71,7 +74,7 @@ router.post('/login', (req, res) => {
 // token is still valid AND the account still exists (e.g. admin removed the
 // user while the tab was open). Returns fresh data, not the stale JWT payload.
 router.get('/me', auth, (req, res) => {
-  const user = db.prepare('SELECT id, name, email, role FROM users WHERE id = ?').get(req.user.id);
+  const user = db.prepare('SELECT id, name, email, login_id, role FROM users WHERE id = ?').get(req.user.id);
   if (!user) return res.status(401).json({ error: 'Account no longer exists.' });
   res.json(user);
 });

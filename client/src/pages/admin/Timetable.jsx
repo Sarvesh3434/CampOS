@@ -10,7 +10,11 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 
 export default function TimetableAdmin() {
   const [section, setSection] = useState('A');
-  const { data: list, reload } = useGet(`/timetable?section=${section}&type=class`);
+  const [dept, setDept] = useState('');
+  const { data: departments } = useGet('/departments');
+  const { data: list, reload } = useGet(
+    `/timetable?section=${section}&type=class${dept ? `&department_id=${dept}` : ''}`
+  );
   const { data: offerings } = useGet('/offerings');
   const [form, setForm] = useState({ offering_id: '', day_or_date: 'Monday', start_time: '09:00', end_time: '10:00', room: '' });
   const [err, setErr] = useState('');
@@ -79,9 +83,17 @@ export default function TimetableAdmin() {
       <Section
         title="Weekly grid preview"
         right={
-          <select className="input w-28" value={section} onChange={(e) => setSection(e.target.value)}>
-            <option>A</option><option>B</option><option>C</option>
-          </select>
+          <div className="flex gap-2">
+            <select className="input w-40" value={dept} onChange={(e) => setDept(e.target.value)}>
+              <option value="">All departments</option>
+              {(departments || []).map((d) => (
+                <option key={d.id} value={d.id}>{d.code} — {d.name}</option>
+              ))}
+            </select>
+            <select className="input w-24" value={section} onChange={(e) => setSection(e.target.value)}>
+              <option>A</option><option>B</option><option>C</option>
+            </select>
+          </div>
         }
       >
         <TimetableGrid slots={list || []} />

@@ -18,14 +18,19 @@ function createSchema() {
 
     -- Login accounts. role: 'admin' | 'faculty' | 'student'
     -- JWT payload will carry { id, role } so route guards are a simple check.
+    -- login_id is what the user types to log in: students use their roll no
+    -- (CSE001), faculty their faculty code (FAC001), admin ADM001. Emails are
+    -- stored for reference but NOT used for login.
     CREATE TABLE IF NOT EXISTS users (
       id            INTEGER PRIMARY KEY AUTOINCREMENT,
       name          TEXT NOT NULL,
       email         TEXT NOT NULL UNIQUE,
+      login_id      TEXT,
       password_hash TEXT NOT NULL,
       role          TEXT NOT NULL CHECK (role IN ('admin','faculty','student')),
       created_at    TEXT NOT NULL DEFAULT (datetime('now'))
     );
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_users_login_id ON users(login_id);
 
     CREATE TABLE IF NOT EXISTS departments (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -182,6 +187,26 @@ function createSchema() {
 }
 
 createSchema();
+
+// ── Tiny migration for databases created before login_id existed ──────────
+// ALTER fails harmlessly if the column already exists; the UPDATEs backfill
+// login ids from roll numbers / faculty codes so old databases keep working.
+try { db.exec("ALTER TABLE users ADD COLUMN login_id TEXT"); } catch (e) { /* already there */ }
+try {
+  db.exec(`
+    UPDATE users SET login_id = COALESCE(
+      (SELECT roll_no FROM students WHERE students.user_id = users.id),
+      'ADM' || printf('%03d', id))
+    WHERE role = 'student' AND login_id IS NULL;
+    UPDATE users SET login_id = COALESCE(
+      (SELECT faculty_code FROM faculty WHERE faculty.user_id = users.id),
+      'FAC' || printf('%03d', id))
+    WHERE role = 'faculty' AND login_id IS NULL;
+    UPDATE users SET login_id = 'ADM' || printf('%03d', id)
+    WHERE role = 'admin' AND login_id IS NULL;
+  `);
+} catch (e) { /* nothing to backfill */ }
+
 db.createSchema = createSchema; // attach so seed.js can call db.createSchema()
 
 // node:sqlite has no .transaction() helper, so provide one with the same

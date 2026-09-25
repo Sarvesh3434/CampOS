@@ -45,9 +45,10 @@ router.post('/', requireRole('admin'), (req, res) => {
   try {
     const hash = bcrypt.hashSync(password, 10);
     const create = db.transaction(() => {
+      // login_id = faculty code — faculty log in with their code, not email.
       const userId = db.prepare(
-        "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'faculty')"
-      ).run(name, email, hash).lastInsertRowid;
+        "INSERT INTO users (name, email, login_id, password_hash, role) VALUES (?, ?, ?, ?, 'faculty')"
+      ).run(name, email, faculty_code, hash).lastInsertRowid;
       const info = db.prepare(
         'INSERT INTO faculty (user_id, faculty_code, department_id, designation) VALUES (?, ?, ?, ?)'
       ).run(userId, faculty_code, b.department_id || null,

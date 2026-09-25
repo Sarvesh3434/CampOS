@@ -73,7 +73,8 @@ export default function Layout() {
         </nav>
         <div className="p-4 border-t border-slate-700 text-sm">
           <div className="font-semibold">{u?.name}</div>
-          <div className="text-slate-400 capitalize">{u?.role}</div>
+          <div className="text-slate-400 font-mono text-xs">{u?.login_id}</div>
+          <div className="text-slate-400 capitalize text-xs">{u?.role}</div>
           <button onClick={logout} className="mt-2 text-red-300 hover:text-red-200">
             Log out
           </button>
