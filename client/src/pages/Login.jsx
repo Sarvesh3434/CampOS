@@ -35,9 +35,9 @@ export default function Login() {
   const quick = (em) => { setEmail(em); setPassword('password123'); };
 
   return (
-    <div className="min-h-screen bg-slate-800 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-8">
-        <h1 className="text-2xl font-bold text-center mb-1">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8">
+        <h1 className="text-3xl font-bold text-center mb-1 tracking-tight">
           Camp<span className="text-blue-600">OS</span>
         </h1>
         <p className="text-center text-gray-500 text-sm mb-6">Academic Management Platform</p>
@@ -62,9 +62,9 @@ export default function Login() {
         <div className="mt-6 text-xs text-gray-500">
           <p className="font-semibold mb-1">Demo accounts (password: password123)</p>
           {[
-            ['Admin', 'admin@campos.edu'],
-            ['Faculty', 'meera@campos.edu'],
-            ['Student', 's1@campos.edu'],
+            ['Admin — Dr. Ravi Selvam', 'admin@campos.edu'],
+            ['Faculty — Meera Sundaram', 'meera@campos.edu'],
+            ['Student — Kayalvizhi', 's1@campos.edu'],
           ].map(([r, em]) => (
             <button key={em} type="button" onClick={() => quick(em)}
               className="block text-blue-600 hover:underline">

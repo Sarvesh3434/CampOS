@@ -24,11 +24,20 @@ export function useGet(url) {
   return { data, loading, error, reload: load };
 }
 
-export function StatCard({ label, value }) {
+export function StatCard({ label, value, accent = 'blue' }) {
+  const accents = {
+    blue: 'border-l-blue-500 text-blue-600',
+    green: 'border-l-green-500 text-green-600',
+    purple: 'border-l-purple-500 text-purple-600',
+    orange: 'border-l-orange-500 text-orange-600',
+    red: 'border-l-red-500 text-red-600',
+    teal: 'border-l-teal-500 text-teal-600',
+  };
+  const a = accents[accent] || accents.blue;
   return (
-    <div className="card">
+    <div className={`card border-l-4 ${a.split(' ')[0]} hover:shadow-md transition-shadow`}>
       <div className="text-sm text-gray-500">{label}</div>
-      <div className="stat-number">{value}</div>
+      <div className={`stat-number ${a.split(' ')[1]}`}>{value}</div>
     </div>
   );
 }

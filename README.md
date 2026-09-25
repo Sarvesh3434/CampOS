@@ -40,10 +40,10 @@ Then open **http://localhost:5173**
 
 | Role | Email |
 |---|---|
-| Admin | admin@campos.edu |
-| Faculty | meera@campos.edu |
-| Faculty | arun@campos.edu |
-| Students | s1@campos.edu … s12@campos.edu |
+| Admin (Dr. Ravi Selvam) | admin@campos.edu |
+| Faculty (Meera Sundaram) | meera@campos.edu |
+| Faculty (Arun Kumar) | arun@campos.edu |
+| Students (Tamil names) | s1@campos.edu … s12@campos.edu |
 
 ## Resetting the Demo
 

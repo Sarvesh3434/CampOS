@@ -1,7 +1,9 @@
-// Timetable.jsx (admin) — creates weekly class slots. Exams live on a separate
-// page but in the SAME table (type column does the splitting — see the prompt).
+// Timetable.jsx (admin) — creates weekly class slots and previews them in a
+// color-coded grid (same view faculty/students see). Exams are on a separate
+// page but in the SAME table (type column does the splitting).
 import { useState } from 'react';
 import api from '../../api';
+import TimetableGrid from '../../components/TimetableGrid.jsx';
 import { useGet, Section } from '../../components/UI.jsx';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -75,13 +77,17 @@ export default function TimetableAdmin() {
       </Section>
 
       <Section
-        title="Slots"
+        title="Weekly grid preview"
         right={
           <select className="input w-28" value={section} onChange={(e) => setSection(e.target.value)}>
             <option>A</option><option>B</option><option>C</option>
           </select>
         }
       >
+        <TimetableGrid slots={list || []} />
+      </Section>
+
+      <Section title="All slots (list view)">
         <table className="table-base">
           <thead><tr><th>Day</th><th>Time</th><th>Course</th><th>Faculty</th><th>Room</th><th></th></tr></thead>
           <tbody>

@@ -1,4 +1,5 @@
-// Timetable.jsx (faculty) — my teaching slots (weekly classes) + my exam duties.
+// Timetable.jsx (faculty) — my teaching week as a color-coded grid + exam duties.
+import TimetableGrid from '../../components/TimetableGrid.jsx';
 import { useGet, Section } from '../../components/UI.jsx';
 
 export default function TimetableFaculty() {
@@ -9,38 +10,28 @@ export default function TimetableFaculty() {
     <>
       <h1 className="text-2xl font-bold mb-4">My Timetable</h1>
 
-      <Section title="Weekly classes">
-        <table className="table-base">
-          <thead><tr><th>Day</th><th>Time</th><th>Course</th><th>Section</th><th>Room</th></tr></thead>
-          <tbody>
-            {(classes || []).map((t) => (
-              <tr key={t.id}>
-                <td>{t.day_or_date}</td>
-                <td>{t.start_time}–{t.end_time}</td>
-                <td>{t.course_code} — {t.course_name}</td>
-                <td>{t.section}</td>
-                <td>{t.room}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <Section title="Weekly teaching schedule">
+        <TimetableGrid slots={classes || []} />
       </Section>
 
       <Section title="Exam duties">
-        <table className="table-base">
-          <thead><tr><th>Date</th><th>Time</th><th>Course</th><th>Section</th><th>Room</th></tr></thead>
-          <tbody>
-            {(exams || []).map((t) => (
-              <tr key={t.id}>
-                <td>{t.day_or_date}</td>
-                <td>{t.start_time}–{t.end_time}</td>
-                <td>{t.course_code} — {t.course_name}</td>
-                <td>{t.section}</td>
-                <td>{t.room}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {exams?.length === 0 && <p className="text-gray-500 text-sm">No exam duties assigned.</p>}
+        {exams?.length > 0 && (
+          <table className="table-base">
+            <thead><tr><th>Date</th><th>Time</th><th>Course</th><th>Section</th><th>Room</th></tr></thead>
+            <tbody>
+              {exams.map((t) => (
+                <tr key={t.id}>
+                  <td>{t.day_or_date}</td>
+                  <td>{t.start_time}–{t.end_time}</td>
+                  <td>{t.course_code} — {t.course_name}</td>
+                  <td>{t.section}</td>
+                  <td>{t.room}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </Section>
     </>
   );

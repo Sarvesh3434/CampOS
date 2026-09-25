@@ -49,18 +49,21 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <aside className="w-56 bg-slate-800 text-slate-100 flex flex-col">
-        <div className="p-4 text-xl font-bold border-b border-slate-700">
+      <aside className="w-56 bg-gradient-to-b from-slate-800 to-slate-900 text-slate-100 flex flex-col shadow-xl">
+        <div className="p-4 text-xl font-bold border-b border-slate-700/60 tracking-tight">
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-blue-400 mr-2 animate-pulse"></span>
           Camp<span className="text-blue-400">OS</span>
         </div>
-        <nav className="flex-1 p-2">
+        <nav className="flex-1 p-2 overflow-y-auto">
           {(LINKS[u?.role] || []).map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
-                `block px-3 py-2 rounded-lg text-sm mb-1 ${
-                  isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-700'
+                `block px-3 py-2 rounded-lg text-sm mb-1 transition-colors ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow'
+                    : 'text-slate-300 hover:bg-slate-700/60 hover:text-white'
                 }`
               }
             >
@@ -79,6 +82,10 @@ export default function Layout() {
       <main className="flex-1 p-6 max-w-6xl">
         <Outlet />
       </main>
+
+      <style>{`
+        .card { transition: box-shadow 0.15s ease; }
+      `}</style>
     </div>
   );
 }

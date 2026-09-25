@@ -55,12 +55,12 @@ function AdminDash({ data }) {
   return (
     <>
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <StatCard label="Total Students" value={s.students} />
-        <StatCard label="Total Faculty" value={s.faculty} />
-        <StatCard label="Total Courses" value={s.courses} />
-        <StatCard label="Departments" value={s.departments} />
-        <StatCard label="Course Allocations" value={s.offerings} />
-        <StatCard label="Pending Tasks" value={s.pending_tasks} />
+        <StatCard label="Total Students" value={s.students} accent="blue" />
+        <StatCard label="Total Faculty" value={s.faculty} accent="purple" />
+        <StatCard label="Total Courses" value={s.courses} accent="green" />
+        <StatCard label="Departments" value={s.departments} accent="teal" />
+        <StatCard label="Course Allocations" value={s.offerings} accent="orange" />
+        <StatCard label="Pending Tasks" value={s.pending_tasks} accent="red" />
       </div>
       <SlotsList title="Today's Classes" rows={data.todays_classes} />
       <SlotsList title="Upcoming Exams" rows={data.upcoming_exams} dateKey="Date" />
@@ -74,10 +74,10 @@ function FacultyDash({ data }) {
     <>
       <TasksPending tasks={data.pending_tasks} />
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <StatCard label="My Courses" value={s.my_courses} />
-        <StatCard label="My Students" value={s.students} />
-        <StatCard label="Assignments" value={s.assignments} />
-        <StatCard label="Ungraded Submissions" value={s.pending_submissions} />
+        <StatCard label="My Courses" value={s.my_courses} accent="blue" />
+        <StatCard label="My Students" value={s.students} accent="green" />
+        <StatCard label="Assignments" value={s.assignments} accent="purple" />
+        <StatCard label="Ungraded Submissions" value={s.pending_submissions} accent="orange" />
       </div>
       <SlotsList title="Today's Classes" rows={data.todays_classes} />
       <SlotsList title="Upcoming Exams (my courses)" rows={data.upcoming_exams} dateKey="Date" />
@@ -90,10 +90,10 @@ function StudentDash({ data }) {
   return (
     <>
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <StatCard label="Enrolled Courses" value={s.courses} />
-        <StatCard label="Overall Attendance" value={`${s.attendance_overall}%`} />
-        <StatCard label="Assignments Submitted" value={s.assignments_submitted} />
-        <StatCard label="Upcoming Exams" value={s.upcoming_exams} />
+        <StatCard label="Enrolled Courses" value={s.courses} accent="blue" />
+        <StatCard label="Overall Attendance" value={`${s.attendance_overall}%`} accent={s.attendance_overall >= 75 ? 'green' : 'red'} />
+        <StatCard label="Assignments Submitted" value={s.assignments_submitted} accent="purple" />
+        <StatCard label="Upcoming Exams" value={s.upcoming_exams} accent="orange" />
       </div>
       <SlotsList title="Today's Classes" rows={data.todays_classes} />
       <SlotsList title="Upcoming Exams" rows={data.upcoming_exams} dateKey="Date" />

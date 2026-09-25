@@ -3,10 +3,10 @@
 // Reset: delete server/campos.db first, then seed again. That's the whole story.
 //
 // Demo accounts (all passwords are "password123"):
-//   admin@campos.edu        (Admin)
-//   meera@campos.edu        (Faculty — Meera Iyer, CSE)
+//   admin@campos.edu        (Admin — Dr. Ravi Selvam)
+//   meera@campos.edu        (Faculty — Meera Sundaram, CSE)
 //   arun@campos.edu         (Faculty — Arun Kumar, ECE)
-//   s1..s12@campos.edu      (Students)
+//   s1..s12@campos.edu      (Students — all Tamil names)
 const bcrypt = require('bcryptjs');
 const db = require('./db');
 
@@ -36,17 +36,19 @@ const hash = bcrypt.hashSync('password123', 10);
 const insUser = db.prepare(
   'INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)'
 );
-const admin = insUser.run('Dr. Ravi Sharma', 'admin@campos.edu', hash, 'admin').lastInsertRowid;
-const meera = insUser.run('Meera Iyer', 'meera@campos.edu', hash, 'faculty').lastInsertRowid;
+const admin = insUser.run('Dr. Ravi Selvam', 'admin@campos.edu', hash, 'admin').lastInsertRowid;
+const meera = insUser.run('Meera Sundaram', 'meera@campos.edu', hash, 'faculty').lastInsertRowid;
 const arun  = insUser.run('Arun Kumar', 'arun@campos.edu', hash, 'faculty').lastInsertRowid;
 
 const studentUserIds = [];
+const STUDENT_NAMES = [
+  'Kayalvizhi Arumugam', 'Sakthivel Murugan', 'Priyadharshini Rajan', 'Vigneshwaran Das',
+  'Sneha Chandran', 'Karthikeyan Selvam', 'Ananya Krishnan', 'Harishankar Subramanian',
+  'Divya Bharathi', 'Adhitya Raman', 'Nithya Sundaresan', 'Manikandan Pillai',
+];
 for (let i = 1; i <= 12; i++) {
-  const name = ['Aisha Verma','Rahul Nair','Priya Singh','Vikram Das','Sneha Reddy',
-    'Karthik Menon','Ananya Gupta','Rohit Shah','Divya Krishnan','Aditya Rao',
-    'Neha Joshi','Manish Pillai'][i - 1];
   studentUserIds.push(
-    insUser.run(name, `s${i}@campos.edu`, hash, 'student').lastInsertRowid
+    insUser.run(STUDENT_NAMES[i - 1], `s${i}@campos.edu`, hash, 'student').lastInsertRowid
   );
 }
 
