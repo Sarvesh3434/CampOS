@@ -47,6 +47,7 @@ jobs:
         run: npm run build
 
       - name: Add .nojekyll (serve files as-is, skip Jekyll)
+        working-directory: client
         run: touch dist/.nojekyll
 
       - name: Upload Pages artifact
