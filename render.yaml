@@ -21,6 +21,6 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
-        value: 22.11.0   # node:sqlite needs >= 22.5
+        value: 22.14.0   # node:sqlite needs >= 22.13 (unflagged); 22.11 was too old
       - key: SEED_ON_BOOT
         value: "1"       # demo convenience: recreate demo data when DB is empty
