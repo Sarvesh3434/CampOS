@@ -1,0 +1,66 @@
+# Builds the React client and deploys it to GitHub Pages.
+#
+# IMPORTANT: this deploys ONLY the frontend (a static demo shell).
+# The Express API + SQLite database cannot run on GitHub Pages — the live
+# site will show "Server offline" on the login page unless you point
+# VITE_API_URL at a hosted backend (see client/.env.production).
+#
+# One-time repo setup: Settings -> Pages -> Source: "GitHub Actions".
+
+name: Deploy client to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22   # node:sqlite needs >= 22.5 (used by the server)
+
+      - name: Install client dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: Build client
+        working-directory: client
+        env:
+          DEPLOY_TARGET: pages
+          # The Express API can't run on GitHub Pages. Point this at a hosted
+          # backend (Render/Railway/Fly...) or leave empty to see the offline state.
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+        run: npm run build
+
+      - name: Add .nojekyll (serve files as-is, skip Jekyll)
+        run: touch dist/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: client/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

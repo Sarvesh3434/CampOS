@@ -23,8 +23,13 @@ export default function Students() {
 
   const remove = async (id) => {
     if (!confirm('Remove this student and their login?')) return;
-    await api.delete(`/students/${id}`);
-    reload();
+    setErr('');
+    try {
+      await api.delete(`/students/${id}`);
+      reload();
+    } catch (e2) {
+      setErr(e2.response?.data?.error || 'Failed to remove student');
+    }
   };
 
   return (
@@ -62,6 +67,8 @@ export default function Students() {
         </form>
         {err && <p className="text-red-600 text-sm mt-2">{err}</p>}
       </Section>
+
+      {err && <p className="text-red-600 text-sm mb-3">{err}</p>}
 
       <Section title="All students">
         <table className="table-base">

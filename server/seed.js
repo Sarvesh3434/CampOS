@@ -6,9 +6,14 @@
 //   admin@campos.edu        (Admin — Dr. Ravi Selvam)
 //   meera@campos.edu        (Faculty — Meera Sundaram, CSE)
 //   arun@campos.edu         (Faculty — Arun Kumar, ECE)
-//   s1..s12@campos.edu      (Students — all Tamil names)
+//   ram@campos.edu          (Faculty — Ram, MAT)
+//   s1..s16@campos.edu      (Students — short names)
 const bcrypt = require('bcryptjs');
 const db = require('./db');
+
+// Single shared demo password for every seeded account. Kept here (not in the
+// README) so the repo's front page doesn't advertise credentials.
+const DEMO_PASSWORD = 'password123';
 
 // Start from scratch every time so the demo is repeatable.
 db.exec(`
@@ -30,7 +35,7 @@ db.exec(`
 `);
 db.createSchema(); // re-create the empty tables we just dropped
 
-const hash = bcrypt.hashSync('password123', 10);
+const hash = bcrypt.hashSync(DEMO_PASSWORD, 10);
 
 // ── Users ───────────────────────────────────────────────────────────────
 // login_id = what you type on the login page (NOT email):
@@ -41,15 +46,20 @@ const insUser = db.prepare(
 const admin = insUser.run('Dr. Ravi Selvam', 'admin@campos.edu', 'ADM001', hash, 'admin').lastInsertRowid;
 const meera = insUser.run('Meera Sundaram', 'meera@campos.edu', 'FAC001', hash, 'faculty').lastInsertRowid;
 const arun  = insUser.run('Arun Kumar', 'arun@campos.edu', 'FAC002', hash, 'faculty').lastInsertRowid;
+const ram   = insUser.run('Ram', 'ram@campos.edu', 'FAC003', hash, 'faculty').lastInsertRowid;
 
 const studentUserIds = [];
+// Short single names keep every dropdown/table readable.
 const STUDENT_NAMES = [
-  'Kayalvizhi Arumugam', 'Sakthivel Murugan', 'Priyadharshini Rajan', 'Vigneshwaran Das',
-  'Sneha Chandran', 'Karthikeyan Selvam', 'Ananya Krishnan', 'Harishankar Subramanian',
-  'Divya Bharathi', 'Adhitya Raman', 'Nithya Sundaresan', 'Manikandan Pillai',
+  'Kayal', 'Sakthi', 'Priya', 'Vignesh',
+  'Sneha', 'Karthik', 'Ananya', 'Hari',
+  'Divya', 'Adhitya', 'Nithya', 'Mani',
+  'Vikram', 'Deepak', 'Meena', 'Rhea',
 ];
-for (let i = 1; i <= 12; i++) {
-  const rollNo = i <= 8 ? `CSE${String(i).padStart(3, '0')}` : `ECE${String(i - 8).padStart(3, '0')}`;
+for (let i = 1; i <= 16; i++) {
+  const rollNo = i <= 8 ? `CSE${String(i).padStart(3, '0')}`
+    : i <= 12 ? `ECE${String(i - 8).padStart(3, '0')}`
+    : `MAT${String(i - 12).padStart(3, '0')}`;
   studentUserIds.push(
     insUser.run(STUDENT_NAMES[i - 1], `s${i}@campos.edu`, rollNo, hash, 'student').lastInsertRowid
   );
@@ -59,21 +69,24 @@ for (let i = 1; i <= 12; i++) {
 const insDept = db.prepare('INSERT INTO departments (name, code) VALUES (?, ?)');
 const cse = insDept.run('Computer Science', 'CSE').lastInsertRowid;
 const ece = insDept.run('Electronics', 'ECE').lastInsertRowid;
+const mat = insDept.run('Mathematics', 'MAT').lastInsertRowid;
 
 const insFac = db.prepare(
   'INSERT INTO faculty (user_id, faculty_code, department_id, designation) VALUES (?, ?, ?, ?)'
 );
 const fMeera = insFac.run(meera, 'FAC001', cse, 'Associate Professor').lastInsertRowid;
 const fArun  = insFac.run(arun, 'FAC002', ece, 'Assistant Professor').lastInsertRowid;
+const fRam   = insFac.run(ram, 'FAC003', mat, 'Assistant Professor').lastInsertRowid;
 
-// 8 students in CSE section A, 4 in ECE section A.
+// 8 students in CSE section A, 4 in ECE section A, 4 in MAT section A.
 const insStu = db.prepare(
   'INSERT INTO students (user_id, roll_no, department_id, section, year) VALUES (?, ?, ?, ?, ?)'
 );
-const cseStudents = [], eceStudents = [];
+const cseStudents = [], eceStudents = [], matStudents = [];
 studentUserIds.forEach((uid, idx) => {
   if (idx < 8) cseStudents.push(insStu.run(uid, `CSE00${idx + 1}`, cse, 'A', 2).lastInsertRowid);
-  else eceStudents.push(insStu.run(uid, `ECE00${idx - 7}`, ece, 'A', 2).lastInsertRowid);
+  else if (idx < 12) eceStudents.push(insStu.run(uid, `ECE00${idx - 7}`, ece, 'A', 2).lastInsertRowid);
+  else matStudents.push(insStu.run(uid, `MAT00${idx - 11}`, mat, 'A', 2).lastInsertRowid);
 });
 
 const insCourse = db.prepare(
@@ -83,6 +96,7 @@ const dbms  = insCourse.run('CS201', 'Database Systems', cse, 4).lastInsertRowid
 const os    = insCourse.run('CS202', 'Operating Systems', cse, 3).lastInsertRowid;
 const cn    = insCourse.run('CS301', 'Computer Networks', cse, 3).lastInsertRowid;
 const dsp   = insCourse.run('EC201', 'Digital Signal Processing', ece, 4).lastInsertRowid;
+const alg   = insCourse.run('MAT101', 'Algebra', mat, 3).lastInsertRowid;
 
 // ── Course offerings (faculty -> course -> section) ─────────────────────────
 const insOff = db.prepare(
@@ -92,12 +106,14 @@ const offDbms = insOff.run(dbms, fMeera, 'A', 'Odd 2026').lastInsertRowid;
 const offOs   = insOff.run(os,   fMeera, 'A', 'Odd 2026').lastInsertRowid;
 const offCn   = insOff.run(cn,   fMeera, 'A', 'Odd 2026').lastInsertRowid;
 const offDsp  = insOff.run(dsp,  fArun,  'A', 'Odd 2026').lastInsertRowid;
+const offAlg  = insOff.run(alg,  fRam,   'A', 'Odd 2026').lastInsertRowid;
 
 const insEnr = db.prepare(
   'INSERT INTO enrollments (offering_id, student_id) VALUES (?, ?)'
 );
 cseStudents.forEach(s => { insEnr.run(offDbms, s); insEnr.run(offOs, s); insEnr.run(offCn, s); });
 eceStudents.forEach(s => insEnr.run(offDsp, s));
+matStudents.forEach(s => insEnr.run(offAlg, s));
 
 // ── Timetable: weekly classes (repeated by weekday) ─────────────────────────
 const insSlot = db.prepare(
@@ -109,6 +125,7 @@ insSlot.run(offOs,   'Tuesday',   '10:00', '11:00', 'LH-2');
 insSlot.run(offOs,   'Thursday',  '10:00', '11:00', 'LH-2');
 insSlot.run(offCn,   'Friday',    '11:00', '12:00', 'LH-3');
 insSlot.run(offDsp,  'Monday',    '14:00', '15:00', 'EC-Lab');
+insSlot.run(offAlg,  'Tuesday',   '14:00', '15:00', 'LH-4');
 
 // ── Timetable: exams (one specific date each) ───────────────────────────────
 const insExam = db.prepare(
@@ -118,6 +135,7 @@ insExam.run(offDbms, '2026-10-12', '09:30', '11:00', 'Exam Hall 1');
 insExam.run(offOs,   '2026-10-14', '09:30', '11:00', 'Exam Hall 1');
 insExam.run(offCn,   '2026-10-16', '14:00', '15:30', 'Exam Hall 2');
 insExam.run(offDsp,  '2026-10-13', '09:30', '11:00', 'Exam Hall 2');
+insExam.run(offAlg,  '2026-10-17', '09:30', '11:00', 'Exam Hall 1');
 
 // ── Attendance: last 6 weekdays for DBMS + OS, ~85% present ─────────────────
 const insAtt = db.prepare(
@@ -185,8 +203,8 @@ insStatus.run(constraint, meera);
 insStatus.run(constraint, arun);
 
 console.log('Seed complete.');
-console.log('Logins (password: password123):');
+console.log(`Logins (password: ${DEMO_PASSWORD}):`);
 console.log('  admin@campos.edu   (Admin)');
 console.log('  meera@campos.edu   (Faculty)');
 console.log('  arun@campos.edu    (Faculty)');
-console.log('  s1@campos.edu ... s12@campos.edu (Students)');
+console.log('  s1@campos.edu ... s16@campos.edu (Students)');

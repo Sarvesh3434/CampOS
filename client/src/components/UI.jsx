@@ -2,6 +2,7 @@
 // a stat card, and a section wrapper. Kept in one file on purpose.
 import { useEffect, useState } from 'react';
 import api from '../api';
+import Icon from './Icons.jsx';
 
 // useGet(url) -> { data, loading, error, reload }
 // The simplest possible fetching pattern: useEffect + useState, nothing else.
@@ -24,32 +25,65 @@ export function useGet(url) {
   return { data, loading, error, reload: load };
 }
 
-export function StatCard({ label, value, accent = 'blue' }) {
-  const accents = {
-    blue: 'border-l-blue-500 text-blue-600',
-    green: 'border-l-green-500 text-green-600',
-    purple: 'border-l-purple-500 text-purple-600',
-    orange: 'border-l-orange-500 text-orange-600',
-    red: 'border-l-red-500 text-red-600',
-    teal: 'border-l-teal-500 text-teal-600',
-  };
-  const a = accents[accent] || accents.blue;
+const ACCENTS = {
+  blue:   { bg: 'bg-blue-50',    text: 'text-blue-600',    ring: 'ring-blue-100' },
+  green:  { bg: 'bg-emerald-50', text: 'text-emerald-600', ring: 'ring-emerald-100' },
+  purple: { bg: 'bg-violet-50',  text: 'text-violet-600',  ring: 'ring-violet-100' },
+  orange: { bg: 'bg-amber-50',   text: 'text-amber-600',   ring: 'ring-amber-100' },
+  red:    { bg: 'bg-red-50',     text: 'text-red-600',     ring: 'ring-red-100' },
+  teal:   { bg: 'bg-teal-50',    text: 'text-teal-600',    ring: 'ring-teal-100' },
+};
+
+// StatCard({ label, value, accent, icon }) — colored icon chip + big number.
+export function StatCard({ label, value, accent = 'blue', icon }) {
+  const a = ACCENTS[accent] || ACCENTS.blue;
   return (
-    <div className={`card border-l-4 ${a.split(' ')[0]} hover:shadow-md transition-shadow`}>
-      <div className="text-sm text-gray-500">{label}</div>
-      <div className={`stat-number ${a.split(' ')[1]}`}>{value}</div>
+    <div className="card flex items-center gap-4 group">
+      {icon && (
+        <div className={`shrink-0 w-11 h-11 rounded-xl ${a.bg} ${a.text} ring-1 ${a.ring}
+          flex items-center justify-center transition-transform duration-200 group-hover:scale-110`}>
+          <Icon name={icon} className="w-5 h-5" />
+        </div>
+      )}
+      <div className="min-w-0">
+        <div className="text-xs font-medium text-slate-500 truncate">{label}</div>
+        <div className={`stat-number ${a.text}`}>{value}</div>
+      </div>
     </div>
   );
 }
 
-export function Section({ title, children, right }) {
+// Section({ title, subtitle, right, children }) — card wrapper with a heading.
+// `right` is an actions slot (buttons) aligned with the title.
+export function Section({ title, subtitle, children, right }) {
   return (
-    <div className="card mb-6">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-lg font-semibold">{title}</h2>
+    <div className="card mb-6 animate-fade-up">
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h2 className="text-base font-semibold text-slate-800">{title}</h2>
+          {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
+        </div>
         {right}
       </div>
       {children}
+    </div>
+  );
+}
+
+// PageHeader({ title, subtitle, icon }) — consistent h1 + intro line on every page.
+export function PageHeader({ title, subtitle, icon }) {
+  return (
+    <div className="flex items-center gap-3 mb-6 animate-fade-up">
+      {icon && (
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white
+          flex items-center justify-center shadow-glow shrink-0">
+          <Icon name={icon} className="w-5 h-5" />
+        </div>
+      )}
+      <div>
+        <h1 className="text-xl font-bold text-slate-800 leading-tight">{title}</h1>
+        {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+      </div>
     </div>
   );
 }

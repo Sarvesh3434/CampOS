@@ -70,18 +70,13 @@ router.post('/', requireRole('admin'), (req, res) => {
 });
 
 // DELETE /api/students/:id — removes student row + login account (CASCADE).
-// Refuses while the student is still enrolled somewhere, so deleting can't
-// silently erase their attendance/marks history through cascades.
+// Their enrollments are removed first (attendance/marks history goes with the
+// cascade), so the delete never gets stuck behind course memberships.
 router.delete('/:id', requireRole('admin'), (req, res) => {
   const stu = db.prepare('SELECT id, user_id FROM students WHERE id = ?').get(req.params.id);
   if (!stu) return res.status(404).json({ error: 'Student not found.' });
 
-  const n = db.prepare('SELECT COUNT(*) AS n FROM enrollments WHERE student_id = ?').get(stu.id).n;
-  if (n > 0) {
-    return res.status(400).json({
-      error: `Cannot remove: student is enrolled in ${n} course(s). Remove the enrollment(s) first.`,
-    });
-  }
+  db.prepare('DELETE FROM enrollments WHERE student_id = ?').run(stu.id);
   db.prepare('DELETE FROM users WHERE id = ?').run(stu.user_id);
   res.json({ ok: true });
 });

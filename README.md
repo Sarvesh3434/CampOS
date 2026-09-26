@@ -36,6 +36,25 @@ npm run dev
 
 Then open **http://localhost:5173**
 
+> **Note:** the GitHub Pages site (https://sarvesh3434.github.io/CampOS/) is a
+> **frontend-only demo shell** — the Express API and SQLite database can't run
+> there, so it shows "Server offline" until you point `VITE_API_URL` at a
+> hosted backend (see `client/.env.production`). Run the steps above for the
+> fully working app.
+
+### Demo Accounts
+
+Passwords are not listed here on purpose. The seed password lives in
+`server/seed.js` — look at `DEMO_PASSWORD` there (or ask the admin who created
+your account; students log in with their roll number, faculty with their code).
+
+| Role | Login ID | Email |
+|---|---|---|
+| Admin (Dr. Ravi Selvam) | ADM001 | admin@campos.edu |
+| Faculty (Meera Sundaram) | FAC001 | meera@campos.edu |
+| Faculty (Arun Kumar) | FAC002 | arun@campos.edu |
+| Students | CSE001…CSE008, ECE001…ECE004, MAT001…MAT004 | s1@campos.edu … s16@campos.edu |
+
 ## Resetting the Demo
 
 ```bash
