@@ -41,6 +41,12 @@ Then open **http://localhost:5173**
 > there, so it shows "Server offline" until you point `VITE_API_URL` at a
 > hosted backend (see `client/.env.production`). Run the steps above for the
 > fully working app.
+>
+> **Pages setup (one-time):** repo **Settings → Pages → Source: "GitHub
+> Actions"**. With that selected, Jekyll is bypassed and every push to `main`
+> deploys `client/dist` via `.github/workflows/deploy-pages.yml`. (If the
+> source stays on "Deploy from a branch", GitHub renders this README with
+> Jekyll instead of the app.)
 
 ### Demo Accounts
 
