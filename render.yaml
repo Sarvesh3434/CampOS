@@ -1,0 +1,26 @@
+# Render Blueprint — deploys the Express API as a free Web Service.
+#
+# Use it: Render Dashboard -> New + -> Blueprint -> pick this repo.
+# Render reads this file and creates the service with these settings.
+#
+# Free-tier caveats (important for this app):
+# - The service spins down after ~15 min idle; the first request after that
+#   is slow (~30-50 s) while it wakes up.
+# - The filesystem is EPHEMERAL: campos.db resets on every redeploy/restart.
+#   That's fine for a demo — seed.js re-runs automatically when the DB is
+#   missing (see server/index.js). Add a paid persistent disk if you ever
+#   need data to survive redeploys.
+services:
+  - type: web
+    name: campos-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.11.0   # node:sqlite needs >= 22.5
+      - key: SEED_ON_BOOT
+        value: "1"       # demo convenience: recreate demo data when DB is empty

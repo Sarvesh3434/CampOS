@@ -4,6 +4,21 @@
 const express = require('express');
 const cors = require('cors');
 
+// Auto-seed for hosted deploys (Render free tier has an ephemeral disk, so
+// campos.db disappears on every redeploy/restart). When the users table is
+// empty and SEED_ON_BOOT is set, run seed.js once so the demo is instantly
+// usable. Locally this is a no-op because your seeded DB already has users.
+try {
+  const db = require('./db');
+  const row = db.prepare('SELECT COUNT(*) AS n FROM users').get();
+  if (String(process.env.SEED_ON_BOOT) === '1' && row.n === 0) {
+    console.log('Empty database detected — seeding demo data...');
+    require('child_process').execSync('node seed.js', { stdio: 'inherit', cwd: __dirname });
+  }
+} catch (e) {
+  console.error('Startup seed check failed:', e.message);
+}
+
 const { auth } = require('./middleware/auth');
 
 const app = express();
