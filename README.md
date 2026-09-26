@@ -36,15 +36,6 @@ npm run dev
 
 Then open **http://localhost:5173**
 
-### Demo Accounts (password: `password123`)
-
-| Role | Email |
-|---|---|
-| Admin (Dr. Ravi Selvam) | admin@campos.edu |
-| Faculty (Meera Sundaram) | meera@campos.edu |
-| Faculty (Arun Kumar) | arun@campos.edu |
-| Students (Tamil names) | s1@campos.edu … s12@campos.edu |
-
 ## Resetting the Demo
 
 ```bash
